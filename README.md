@@ -40,6 +40,7 @@ Requires Firefox 140 or newer. Only works in a desktop browser, not the YouTube 
 ## Privacy
 
 - To look up community breaks, the extension sends only the first 4 characters of a SHA-256 hash of the recording ID, so the server can't tell exactly what you're watching.
+- Full details: [PRIVACY.md](PRIVACY.md).
 - Submitting or voting sends the recording ID, the break times, and a random ID generated in your browser (stored on the server only as a hash). No account, name, or email is collected.
 
 ## Server rules

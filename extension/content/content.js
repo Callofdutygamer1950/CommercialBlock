@@ -152,7 +152,11 @@
     render();
   }
 
+  // Nothing from private windows is ever written to disk (Mozilla policy).
+  const PRIVATE = !!(browser.extension && browser.extension.inIncognito);
+
   function bumpStats(delta) {
+    if (PRIVATE) return;
     browser.storage.local.get("stats").then(({ stats }) => {
       const s = Object.assign({ skips: 0, secondsSaved: 0, adsSkipped: 0, submissions: 0, votes: 0 }, stats || {});
       for (const k of Object.keys(delta)) s[k] = (s[k] || 0) + delta[k];
@@ -350,7 +354,7 @@
         channelId: state.info ? state.info.channelId : "",
         savedAt: new Date().toISOString()
       });
-      await browser.storage.local.set({ localSegments });
+      if (!PRIVATE) await browser.storage.local.set({ localSegments });
       res = { ok: true, local: true };
     } else {
       try {
@@ -403,7 +407,7 @@
         log("vote failed", e);
       }
     }
-    browser.storage.local.set({ myVotes }).catch(() => {});
+    if (!PRIVATE) browser.storage.local.set({ myVotes }).catch(() => {});
   }
 
   // ---------- UI ----------
