@@ -9,6 +9,21 @@ For **DVR recordings**, it uses two sources of commercial breaks:
 1. **YouTube TV's own break list.** When a recording loads, YouTube TV tells the player where it plans to insert ads. CommercialBlock reads that list and skips those breaks automatically. This works with zero users.
 2. **Community-marked breaks.** For breaks YouTube TV doesn't list, anyone can mark the start and end (press `;` twice, or use the button at the top right of the player). Breaks are shared through a Supabase database and voted up or down, like SponsorBlock.
 
+## Install (testing)
+
+1. Download or clone this repository and zip the contents of the `extension/` folder (or use a release zip).
+2. In Firefox, open `about:debugging#/runtime/this-firefox`.
+3. Click **Load Temporary Add-on…** and choose the zip (or `extension/manifest.json`).
+4. Open a recording on [tv.youtube.com](https://tv.youtube.com).
+
+Requires Firefox 140 or newer. Only works in a desktop browser, not the YouTube TV apps on TVs or phones.
+
+## Using it
+
+- **Yellow** marks on the progress bar: breaks YouTube TV itself listed (skipped automatically). They often cover only part of a break; click **Still ads?** after a skip to mark the rest.
+- **Green** marks: community-marked breaks.
+- To mark a break: press `;` when the commercials start and again when the show returns, then **Share with community**.
+
 ## Project layout
 
 | Path | What it is |
@@ -33,3 +48,7 @@ For **DVR recordings**, it uses two sources of commercial breaks:
 - Up to 30 submissions and 200 votes per browser per hour.
 - A near-duplicate submission counts as an upvote of the existing break.
 - Breaks with a score of −2 or lower are hidden. Set `hidden = true` in the `segments` table to remove one by hand, or add a `user_hash` to `banned_users` to block a spammer.
+
+## License
+
+GPL-3.0. See [LICENSE](LICENSE).

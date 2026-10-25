@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "CommercialBlock",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Skip commercials on YouTube TV: DVR breaks (YouTube TV's own data plus community marks) and ads in on-demand episodes.",
   "icons": {
     "48": "icons/icon-48.png",
