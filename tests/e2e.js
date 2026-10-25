@@ -251,6 +251,24 @@ function check(name, cond, extra) {
   check("with the setting off, ads play normally", off.inAd && off.t > 1, off);
   await page3.close();
 
+  // 11) Private window: features work, but nothing is written to storage
+  const page4 = await browser.newPage({ viewport: { width: 1000, height: 600 } });
+  page4.on("pageerror", (e) => errors.push(String(e)));
+  await page4.addInitScript(stub + `
+    (() => { const orig = browser.runtime.sendMessage; const sets = (window.__sets = []);
+      browser.runtime.sendMessage = async (m) => m.type === "isPrivate" ? { private: true } : orig(m);
+      const set = browser.storage.local.set; browser.storage.local.set = async (o) => { sets.push(Object.keys(o)); return set(o); }; })();`);
+  await page4.goto("http://localhost:8123/watch/33rnEV3E4mA");
+  for (const f of ["content/page-bridge.js", "content/segments.js", "content/content.js"]) await page4.addScriptTag({ path: path.join(EXT, f) });
+  await page4.waitForTimeout(1500);
+  await page4.evaluate(() => { fake.t = 737; fake.playing = true; fake.startAdPod([15, 15]); });
+  await page4.waitForTimeout(3000);
+  await page4.evaluate(() => { fake.t = 139; });
+  await page4.waitForTimeout(3500);
+  const priv = await page4.evaluate(() => ({ adsGone: !fake.pod, skippedBreak: fake.t > 200, sets: window.__sets }));
+  check("private window: still skips, but saves nothing", priv.adsGone && priv.skippedBreak && priv.sets.length === 0, priv);
+  await page4.close();
+
   check("no JavaScript errors", errors.length === 0, errors);
 
   await browser.close();

@@ -98,7 +98,10 @@ async function vote(msg) {
   return { ok: true, score };
 }
 
-browser.runtime.onMessage.addListener((msg) => {
+browser.runtime.onMessage.addListener((msg, sender) => {
+  if (msg && msg.type === "isPrivate") {
+    return Promise.resolve({ private: !!(sender && sender.tab && sender.tab.incognito) });
+  }
   const run = async () => {
     try {
       if (msg.type === "getSegments") return await getSegments(msg.videoId, msg.duration, msg.force);

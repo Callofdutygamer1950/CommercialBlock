@@ -153,7 +153,12 @@
   }
 
   // Nothing from private windows is ever written to disk (Mozilla policy).
-  const PRIVATE = !!(browser.extension && browser.extension.inIncognito);
+  // Content scripts can't tell on their own, so ask the background script,
+  // which sees the tab. Assume private until it answers.
+  let PRIVATE = true;
+  browser.runtime.sendMessage({ type: "isPrivate" })
+    .then((res) => { PRIVATE = !!(res && res.private === true); })
+    .catch(() => { PRIVATE = false; });
 
   function bumpStats(delta) {
     if (PRIVATE) return;
