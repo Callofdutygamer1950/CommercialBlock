@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "name": "CommercialBlock",
+  "version": "0.2.0",
+  "description": "Skip commercials on YouTube TV: DVR breaks (YouTube TV's own data plus community marks) and ads in on-demand episodes.",
+  "icons": {
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-96.png",
+    "128": "icons/icon-128.png"
+  },
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://tv.youtube.com/*",
+    "https://*.supabase.co/*"
+  ],
+  "background": {
+    "scripts": ["config.js", "background.js"]
+  },
+  "action": {
+    "default_title": "CommercialBlock",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "48": "icons/icon-48.png",
+      "96": "icons/icon-96.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://tv.youtube.com/*"],
+      "js": ["content/page-bridge.js"],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://tv.youtube.com/*"],
+      "js": ["content/segments.js", "content/content.js"],
+      "css": ["content/content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "commercialblock@extension",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": ["browsingActivity"]
+      }
+    }
+  }
+}

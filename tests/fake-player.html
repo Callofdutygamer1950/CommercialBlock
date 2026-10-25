@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Fake YouTube TV</title>
+<style>
+  body { margin: 0; background: #000; font-family: sans-serif; }
+  #movie_player { position: relative; width: 960px; height: 540px; background: #223; margin: 20px; }
+  .html5-video-container video { width: 100%; height: 100%; background: linear-gradient(135deg,#335,#113); }
+  .controls { position: absolute; left: 0; right: 0; bottom: 0; height: 70px; background: linear-gradient(transparent, rgba(0,0,0,.8)); }
+  .ytu-ss-timeline { position: absolute; left: 20px; right: 20px; bottom: 44px; height: 5px; background: rgba(255,255,255,.3); }
+  #clock { position: absolute; left: 20px; bottom: 14px; color: #fff; font-size: 13px; }
+  button.skip-ad-button { position: absolute; right: 20px; bottom: 90px; display: none; }
+</style>
+</head>
+<body>
+<div id="movie_player">
+  <div class="html5-video-container"><video></video></div>
+  <div class="controls"><div class="ytu-ss-timeline"></div><div id="clock"></div></div>
+  <button class="skip-ad-button">Skip ad</button>
+</div>
+<script>
+  // Simulated YouTube TV player.
+  history.replaceState(null, "", "/watch/33rnEV3E4mA");
+  const P = document.getElementById("movie_player");
+  const V = P.querySelector("video");
+  window.fake = { t: 0, playing: false, seeks: [], allowSeeking: true, adClicks: 0, rate: 1 };
+  // Ad simulation (on-demand episodes): while an ad plays, the same <video>
+  // element holds the ad, #movie_player has "ad-showing", and the show waits.
+  fake.pod = null; // { durs: [15, 30, ...], i, t, stubborn }
+  fake.startAdPod = (durs, stubborn) => { fake.pod = { durs, i: 0, t: 0, stubborn: !!stubborn }; P.classList.add("ad-showing", "ad-interrupting"); };
+  fake.nextAd = () => {
+    fake.pod.i++; fake.pod.t = 0;
+    if (fake.pod.i >= fake.pod.durs.length) { fake.pod = null; P.classList.remove("ad-showing", "ad-interrupting"); }
+  };
+  Object.defineProperty(V, "paused", { get: () => !fake.playing });
+  Object.defineProperty(V, "duration", { get: () => fake.pod ? fake.pod.durs[fake.pod.i] : 1865 });
+  Object.defineProperty(V, "currentTime", {
+    get: () => fake.pod ? fake.pod.t : fake.t,
+    set: (x) => {
+      if (!fake.pod) { fake.t = x; return; }
+      if (fake.pod.stubborn) { fake.pod.t = 0; return; } // simulate YouTube restarting the ad
+      fake.pod.t = x;
+      if (x >= fake.pod.durs[fake.pod.i] - 0.1) fake.nextAd();
+    }
+  });
+  V.play = () => { fake.playing = true; return Promise.resolve(); };
+  V.pause = () => { fake.playing = false; };
+  P.getPlayerResponse = () => ({
+    videoDetails: { videoId: "33rnEV3E4mA", title: "Twisted Christian", lengthSeconds: "1865", channelId: "UCwig0jo9FYVff261Pd05MgQ", isLiveContent: true },
+    adPlacements: [
+      { adPlacementRenderer: { config: { adPlacementConfig: { kind: "AD_PLACEMENT_KIND_MILLISECONDS", adTimeOffset: { offsetStartMilliseconds: "140773", offsetEndMilliseconds: "200799" } } } } },
+      { adPlacementRenderer: { config: { adPlacementConfig: { kind: "AD_PLACEMENT_KIND_START", adTimeOffset: { offsetStartMilliseconds: "0", offsetEndMilliseconds: "-1" } } } } }
+    ]
+  });
+  P.getCurrentTime = () => fake.t; // stays on the show's time during ads, like the real player
+  P.getDuration = () => 1865;
+  P.seekTo = (s) => { fake.seeks.push(s); if (fake.allowSeeking) fake.t = s; };
+  P.getProgressState = () => ({ allowSeeking: true, seekableEnd: 1865 });
+  document.querySelector("button.skip-ad-button").addEventListener("click", () => fake.adClicks++);
+  setInterval(() => {
+    if (fake.playing && fake.pod) {
+      fake.pod.t += 0.1 * (V.playbackRate || 1);
+      if (fake.pod.t >= fake.pod.durs[fake.pod.i]) fake.nextAd();
+    } else if (fake.playing) fake.t += 0.1 * fake.rate;
+    document.getElementById("clock").textContent = fake.t.toFixed(1) + "s";
+  }, 100);
+</script>
+</body>
+</html>

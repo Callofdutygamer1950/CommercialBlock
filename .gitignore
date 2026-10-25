@@ -1,0 +1,5 @@
+*.zip
+*.xpi
+node_modules/
+tests/*.png
+.DS_Store

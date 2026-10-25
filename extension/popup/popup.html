@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>CommercialBlock</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="../icons/icon-48.png" alt="" width="28" height="28">
+    <h1>CommercialBlock</h1>
+    <label class="switch" title="Turn CommercialBlock on or off">
+      <input type="checkbox" id="enabled">
+      <span class="slider"></span>
+    </label>
+  </header>
+
+  <section id="now" class="card">
+    <div class="muted" id="now-empty">Open a recording on tv.youtube.com to see its commercial breaks.</div>
+    <div id="now-info" hidden>
+      <div class="title" id="now-title"></div>
+      <div class="counts">
+        <span><i class="dot yt"></i><b id="yt-count">0</b> from YouTube TV</span>
+        <span><i class="dot cm"></i><b id="cm-count">0</b> from community</span>
+      </div>
+      <div class="small" id="yt-list"></div>
+      <div class="muted small" id="now-note"></div>
+      <div class="muted small">To mark a missing break, press <kbd>;</kbd> when it starts and again when it ends, or use the button at the top right of the player.</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Skip</h2>
+    <label class="opt"><input type="checkbox" id="useYouTube"> Breaks YouTube TV lists</label>
+    <label class="opt"><input type="checkbox" id="useCommunity"> Community-marked breaks</label>
+    <label class="opt"><input type="checkbox" id="skipOnDemandAds"> Ads in on-demand episodes (not recorded to DVR)</label>
+    <label class="opt"><input type="checkbox" id="autoClickSkipAd"> Press YouTube TV's "Skip ad" button for me</label>
+    <h2>Show</h2>
+    <label class="opt"><input type="checkbox" id="showNotice"> A notice after each skip</label>
+    <label class="opt"><input type="checkbox" id="showMarkers"> Breaks on the progress bar</label>
+    <details>
+      <summary>Advanced</summary>
+      <label class="opt"><input type="checkbox" id="debug"> Debug logging (in the browser console)</label>
+    </details>
+  </section>
+
+  <section class="card" id="saved">
+    <h2>Your saved breaks</h2>
+    <div class="muted small" id="saved-empty">You haven't saved any breaks on this computer yet.</div>
+    <ul id="saved-list"></ul>
+    <div class="row-actions">
+      <button type="button" id="export">Download all (file)</button>
+      <button type="button" id="upload" hidden>Share all with community</button>
+    </div>
+    <div class="muted small" id="saved-msg"></div>
+  </section>
+
+  <section class="card stats">
+    <div><b id="st-skips">0</b><span>commercials skipped</span></div>
+    <div><b id="st-saved">0:00</b><span>time saved</span></div>
+    <div><b id="st-subs">0</b><span>breaks you shared</span></div>
+  </section>
+
+  <footer class="muted small" id="server"></footer>
+  <script src="../content/segments.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
